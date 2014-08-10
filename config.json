@@ -1,4 +1,5 @@
 {
-		"maxCmdThreads": 2
+		"maxCmdThreads": 8
+		,"maxLinesReadAhead": 1000
 		,"curl": "/usr/bin/curl"
 }

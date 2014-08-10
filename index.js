@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-// node ./ -d ./~dicts/ -h 'http://www.example.com' -r
-// node /Users/ahulce/Dropbox/hacks/wplogin/ -h 'http://www.xxx.com' -u hope -v -s30 -r
+
 
 var fs = require('fs')
 ,split = require('split')
@@ -8,8 +7,8 @@ var fs = require('fs')
 ,through = require('through')
 ,sext = require('sext')
 ,argv = require('minimist')(process.argv.slice(2))
-,ut = require('./ut.js')
-,logger = require('./logger.js')
+,ut = require('./ut')
+,logger = require('./logger')
 ,config = require('./config')
 ,matchKey = 'Match!'
 ,verbose = !!argv.v
@@ -19,7 +18,7 @@ var fs = require('fs')
 ,user = encodeURIComponent(argv.u || 'admin')
 ,quitOnFind = !!argv.r
 ,logDir = config.logDir ? config.logDir : __dirname+'/logs/'
-,logFile
+,maxCmdThreads = argv.t ? +argv.t : config.maxCmdThreads
 ,dictFile = argv.d || __dirname+'/dict.example'
 ,dictDir
 ,checked = {}
@@ -27,6 +26,7 @@ var fs = require('fs')
 ,stats = {
 	attempts: 0
 	,attemptsCompleted: 0
+	,attemptErrors: 0
 	,filesOpened: 0
 	,filesRead: 0
 	,dups: 0
@@ -34,12 +34,13 @@ var fs = require('fs')
 	,timeEnd: null
 	,matches: []
 }
+,configDisplay = ['host: '+host, 'loginPath: '+loginPath, 'user: '+user, 'dictFile: '+dictFile, 'verbose: '+verbose, 'intervalSeconds: '+intervalSeconds, 'logDir: '+logDir, 'quitOnFind: '+quitOnFind, 'maxCmdThreads: '+maxCmdThreads, 'config: '+JSON.stringify(config)]
 ;
-console.log(['host: '+host, 'loginPath: '+loginPath, 'user: '+user, 'dictFile: '+dictFile, 'verbose: '+verbose, 'intervalSeconds: '+intervalSeconds, 'logDir: '+logDir, 'config: '+JSON.stringify(config)/*, 'cmd: '+cmd*/].join('\n'),'\n');
+console.log(configDisplay.join('\n'),'\n');
 
 stats.timeStart = new Date;
 startStatsInterval(intervalSeconds);
-logger.create();
+logger.create(logDir, ut.prettyTime(stats.timeStart), configDisplay.join('\n'));
 //handleProcessErrors();
 
 
@@ -63,11 +64,12 @@ fs.stat(dictFile,function(err,stat){
 	} else {
 		return console.log('Dict path is not a file or directory');
 	}
-	through(checkDicts).on('attemptReceived',function(err,data){
-		if (err)
+	through(checkDicts).on('attemptReceived',function(err,data, stdOut, stdErr){
+		if (err) {
 			console.log('Attempt Error', err);
+			// console.log('\nstdOut\n'+stdOut, '\nstdErr\n'+stdErr);
+		}
 		if (data && quitOnFind) {
-			console.log('should be quitting now...');
 			showResults();
 		}
 	}).on('fileRead',function(err,data){
@@ -89,9 +91,20 @@ function prettifyStats(){
 		cpy.timeEnd = ut.prettyTime(cpy.timeEnd);
 	return '\n\n----------------------------\n\n'
 		+ ut.prettyTime()+'\n\n'
-		+ JSON.stringify(cpy)
+		+ JSON.stringify(cpy)+'\n\n'
+		+ (stats.attemptErrors
+			? 'Retry the '+stats.attemptErrors+' failed attempts by running:\n'
+				+ makeReRunFailedAttemptsCmd()
+			: '')
 		+ '\n\n----------------------------\n\n'
 	;
+}
+
+function makeReRunFailedAttemptsCmd(){
+	var logPath = logger.getPath('failed');
+	if (!logPath)
+		return null;
+	return process.argv.join(' ').replace(dictFile,logPath);
 }
 
 function showResults(err){
@@ -100,32 +113,34 @@ function showResults(err){
 		? console.log('\n------------ Error! ------------\n',err)
 		: console.log('\n------------ El Fin ------------\n')
 	;
-	console.log(prettifyStats(),'\n');
-	console.log(JSON.stringify(Object.keys));
 	if (err) {
 		if (err.message && err.name && err.stack)
 				throw err;
 		console.log('ERR',err);
 	}
+	var pretty = prettifyStats();
+	console.log(pretty);
+	logger.update(pretty);
 	process.kill();
 }
 
 function startStatsInterval(secs){
+	var ms = secs * 1000;
 	stopStatsInterval();
 	statsInterval = setTimeout(function(){
+		var pretty = prettifyStats();
 		if (verbose)
-			console.log(prettifyStats());
-		logger.update();
-		stopStatsInterval();
-		statsInterval = setTimeout(startStatsInterval,secs*1000)
-	},secs*1000);
+			console.log(pretty);
+		logger.update(pretty);
+		startStatsInterval(secs);
+	},ms);
 }
 
 function stopStatsInterval(){
-	if (statsInterval !== null) {
-		clearInterval(statsInterval);
-		statsInterval = null;
-	}
+	if (statsInterval === null)
+		return;
+	clearTimeout(statsInterval);
+	statsInterval = null;
 }
 
 function checkDicts(files){
@@ -134,12 +149,13 @@ function checkDicts(files){
 	,attempts = 0
 	,attemptsReceived = 0
 	,activeCmds = 0
+	,streams = []
 	,cmdQueue = []
 	,matches = []
 	;
-	files.forEach(function(file){
+	files.forEach(function(file,fileIndex){
 		++stats.filesOpened;
-		fs.createReadStream(file).pipe(split()).on('data',function(pass){
+		streams[streams.length-1] = fs.createReadStream(file).pipe(split()).on('data',function(pass){
 			//console.log(pass);
 			if (checked[pass]) {
 				++stats.dups;
@@ -149,6 +165,9 @@ function checkDicts(files){
 			++stats.attempts;
 			++attempts;
 			queueCmd(pass);
+			streams[fileIndex] = this;
+			if (cmdQueue.length > config.maxLinesReadAhead)
+				this.pause();
 		}).on('error',fileFinished).on('close',fileFinished);
 		function fileFinished(err){
 			++filesFinished;
@@ -157,13 +176,13 @@ function checkDicts(files){
 			z.emit('fileRead',err,file);
 		}
 		function queueCmd(pass){
-			if (activeCmds < config.maxCmdThreads)
+			if (activeCmds < maxCmdThreads)
 				return runCmd(pass);
 			cmdQueue.push({pass:pass});
 		}
 		function runCmd(pass){
 			++activeCmds;
-			checkAuth(user, pass, function(err,match){
+			checkAuth(user, pass, function(err,match,stdOut,stdErr){
 				++attemptsReceived;
 				if (!err) {
 					++stats.attemptsCompleted;
@@ -171,18 +190,45 @@ function checkDicts(files){
 						matches.push(match);
 						stats.matches.push(match);
 					}
+				} else {
+					++stats.attemptErrors;
+					logger.addErroredAttempt(pass);
 				}
-				z.emit('attemptReceived',err,match);
+				z.emit('attemptReceived',err,match,stdOut,stdErr);
+				console.log(attemptsReceived,attempts);
 				if (attemptsReceived == attempts)
-					return z.emit('done',false,matches);
+					return z.emit('end',false,matches);
 				--activeCmds;
 				if (cmdQueue.length) {
 					var cmd = cmdQueue.shift();
 					runCmd(cmd.pass);
+					if (cmdQueue.length <= config.maxLinesReadAhead) {
+						streams.forEach(function(stream){
+							stream.resume();
+						});
+					}
 				}
 			});
 		}
 	});
+	function pauseStreams(){
+		if (streamsPaused)
+			return;
+		streamsPaused = true;
+		console.log('PAUSING');
+		streams.forEach(function(stream){
+			stream.pause();
+		});
+	}
+	function resumeStreams(){
+		if (!streamsPaused)
+			return;
+		streamsPaused = false;
+		console.log('RESUMING');
+		streams.forEach(function(stream){
+			stream.resume();
+		});
+	}
 }
 
 function checkAuth(user,pass,cb){
@@ -214,7 +260,7 @@ function checkAuth(user,pass,cb){
 			};
 			if (verbose) console.log(matchKey,'  ',match);
 		}
-		cb(err,match);
+		cb(err,match,stdOut,stdErr);
 	});
 }
 
