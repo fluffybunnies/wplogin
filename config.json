@@ -1,2 +1,4 @@
 {
+		"maxCmdThreads": 2
+		,"curl": "/usr/bin/curl"
 }
