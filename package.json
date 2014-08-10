@@ -1,0 +1,30 @@
+{
+	"name": "wplogin",
+	"version": "0.0.0",
+	"description": "",
+	"keywords": [
+		"wordpress"
+	],
+	"homepage": "https://github.com/fluffybunnies/wplogin",
+	"author": "fluffybunnies",
+	"license": "MIT",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:fluffybunnies/wplogin.git"
+	},
+	"dependencies": {
+		"split": "0.3.0",
+		"sext": "0.0.10",
+		"minimist": "0.2.0"
+	},
+	"devDependencies": {
+		"tape": "2.14.0"
+	},
+	"bugs": {
+		"url": "https://github.com/fluffybunnies/wplogin/issues"
+	},
+	"scripts": {
+		"test": "node test/test.js"
+	}
+}
