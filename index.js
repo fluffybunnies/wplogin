@@ -34,10 +34,10 @@ var fs = require('fs')
 	,attempts: 0
 	,attemptsCompleted: 0
 	,attemptErrors: 0
-	,filesOpened: 0
-	,filesRead: 0
 	,skipped: 0
 	,dups: 0
+	,filesOpened: 0
+	,filesRead: 0
 	,timeStart: null
 	,timeEnd: null
 	,matches: []
@@ -76,12 +76,14 @@ fs.stat(dictFile,function(err,stat){
 		if (err)
 			return console.log('Error getting saved results',err);
 		data.forEach(function(v){
-			if (!previouslyChecked._[v.file]) previouslyChecked._[v.file] = {};
-			if (!previouslyChecked.f[v.file]) previouslyChecked.f[v.file] = {};
-			previouslyChecked._[v.file][v.pass] = previouslyChecked.f[v.file][v.pass] = true;
+			if (!previouslyChecked._[v.file]) {
+				previouslyChecked._[v.file] = {};
+				previouslyChecked.f[v.file] = {};
+			}
+			previouslyChecked._[v.file][v.pass] = previouslyChecked.f[v.file][v.pass] = v.pass;
 		});
-		//console.log('Num previously checked: '+data.length);
-		console.log('previouslyChecked:\n',previouslyChecked,'\n\n');
+		console.log('Total previously checked:\n',data.length,'\n\n');
+		console.log('previouslyChecked.f:\n',previouslyChecked,'\n\n');
 		delete data;
 		through(checkDicts).on('attemptReceived',function(err, pass, data, stdOut, stdErr){
 			if (err) {
@@ -180,7 +182,7 @@ function checkDicts(files,cb){
 	;
 	files.forEach(function(file,fileIndex){
 		++stats.filesOpened;
-		streams[streams.length-1] = fs.createReadStream(file).pipe(split()).on('data',function(pass){
+		streams[fileIndex] = fs.createReadStream(file).pipe(split()).on('data',function(pass){
 			++stats.passesRead;
 			if (previouslyChecked._[pass]) {
 				++stats.skipped;
@@ -268,7 +270,7 @@ function checkAuth(user,pass,cb){
 		//console.log('stdErr', stdErr);
 		// todo: need a stricter check to make sure page loaded
 		if (stdOut.length < 500 || stdErr.indexOf('403 Forbidden') != -1)
-			throw '\nWe\'ve been blocked :(\n\n\n'+stdOut+'\n\n\n'+stdErr;
+			throw '\n\n\n'+stdOut+'\n\n\n'+stdErr+'\n\n\n'+'\nWe\'ve been blocked :(\n\n';
 		if (!err && stdErr.indexOf('302 Found') != -1) {
 			match = {
 				user: user
