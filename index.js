@@ -82,8 +82,7 @@ fs.stat(dictFile,function(err,stat){
 			}
 			previouslyChecked._[v.file][v.pass] = previouslyChecked.f[v.file][v.pass] = v.pass;
 		});
-		console.log('Total previously checked:\n',data.length,'\n\n');
-		console.log('previouslyChecked.f:\n',previouslyChecked,'\n\n');
+		displayPrevChecked();
 		delete data;
 		through(checkDicts).on('attemptReceived',function(err, pass, data, stdOut, stdErr){
 			if (err) {
@@ -283,4 +282,11 @@ function checkAuth(user,pass,cb){
 }
 
 
+function displayPrevChecked(){
+	console.log('Total previously checked:\n',previouslyChecked.f.length,'\n\n');
+	//console.log('previouslyChecked.f:\n',previouslyChecked,'\n\n');
+	Object.keys(previouslyChecked.f).forEach(function(v){
+		console.log('"'+v.file+'"\t\t'+previouslyChecked.f[k].length;
+	});
+}
 
