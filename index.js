@@ -78,7 +78,7 @@ fs.stat(dictFile,function(err,stat){
 		console.log('Num previously checked: '+data.length);
 		//console.log('previouslyChecked:\n',previouslyChecked,'\n\n');
 		delete data;
-		through(checkDicts).on('attemptReceived',function(pass, err, data, stdOut, stdErr){
+		through(checkDicts).on('attemptReceived',function(err, pass, data, stdOut, stdErr){
 			if (err) {
 				return console.log('Attempt Error', err);
 				// console.log('\nstdOut\n'+stdOut, '\nstdErr\n'+stdErr);
@@ -163,7 +163,7 @@ function stopStatsInterval(){
 	statsInterval = null;
 }
 
-function checkDicts(files){
+function checkDicts(files,cb){
 	var z = this
 	,filesFinished = 0
 	,attempts = 0
@@ -179,11 +179,11 @@ function checkDicts(files){
 			++stats.passesRead;
 			if (previouslyChecked[pass]) {
 				++stats.skipped;
-				return z.emit('attemptReceived',pass);
+				return z.emit('attemptReceived',false,pass);
 			}
 			if (checkedThisProcess[pass]) {
 				++stats.dups;
-				return z.emit('attemptReceived',pass);
+				return z.emit('attemptReceived',false,pass);
 			}
 			checkedThisProcess[pass] = true;
 			++stats.attempts;
@@ -220,7 +220,7 @@ function checkDicts(files){
 					++stats.attemptErrors;
 					logger.addErroredAttempt(pass);
 				}
-				z.emit('attemptReceived',pass,err,match,stdOut,stdErr);
+				z.emit('attemptReceived',err,pass,match,stdOut,stdErr);
 				//console.log(attemptsReceived,attempts);
 				if (attemptsReceived == attempts && filesFinished == files.length)
 					return z.emit('end',false,matches);
