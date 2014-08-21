@@ -75,6 +75,7 @@ fs.stat(dictFile,function(err,stat){
 	db.getResultsForHostUser(host, user, function(err,data){
 		if (err)
 			return console.log('Error getting saved results',err);
+		console.log(data);
 		data.forEach(function(v){
 			if (!previouslyChecked._[v.file]) {
 				previouslyChecked._[v.file] = {};
@@ -84,12 +85,12 @@ fs.stat(dictFile,function(err,stat){
 		});
 		displayPrevChecked();
 		delete data;
-		through(checkDicts).on('attemptReceived',function(err, pass, data, stdOut, stdErr){
+		through(checkDicts).on('attemptReceived',function(err, file, pass, data, stdOut, stdErr){
 			if (err) {
 				return console.log('Attempt Error', err);
 				// console.log('\nstdOut\n'+stdOut, '\nstdErr\n'+stdErr);
 			}
-			db.saveResult(host, user, pass, data?'1':'0', function(err,data){
+			db.saveResult(host, user, file, pass, data?'1':'0', function(err,data){
 				if (err)
 					console.log('Error saving result', err);
 				//console.log(data);
@@ -185,11 +186,11 @@ function checkDicts(files,cb){
 			++stats.passesRead;
 			if (previouslyChecked._[pass]) {
 				++stats.skipped;
-				return z.emit('attemptReceived',false,pass);
+				return z.emit('attemptReceived',false,file,pass);
 			}
 			if (checkedThisProcess[pass]) {
 				++stats.dups;
-				return z.emit('attemptReceived',false,pass);
+				return z.emit('attemptReceived',false,file,pass);
 			}
 			checkedThisProcess[pass] = true;
 			++stats.attempts;
@@ -226,7 +227,7 @@ function checkDicts(files,cb){
 					++stats.attemptErrors;
 					logger.addErroredAttempt(pass);
 				}
-				z.emit('attemptReceived',err,pass,match,stdOut,stdErr);
+				z.emit('attemptReceived',err,file,pass,match,stdOut,stdErr);
 				//console.log(attemptsReceived,attempts);
 				if (attemptsReceived == attempts && filesFinished == files.length)
 					return z.emit('end',false,matches);
@@ -269,7 +270,7 @@ function checkAuth(user,pass,cb){
 		//console.log('stdErr', stdErr);
 		// todo: need a stricter check to make sure page loaded
 		if (stdOut.length < 500 || stdErr.indexOf('403 Forbidden') != -1)
-			throw '\n\n\n'+stdOut+'\n\n\n'+stdErr+'\n\n\n'+'\nWe\'ve been blocked :(\n\n';
+			throw '\n\n\n'+stdErr+'\n\n\n'+stdOut+'\n\n\n'+'\nWe\'ve been blocked :(\n\n';
 		if (!err && stdErr.indexOf('302 Found') != -1) {
 			match = {
 				user: user
@@ -283,10 +284,9 @@ function checkAuth(user,pass,cb){
 
 
 function displayPrevChecked(){
-	console.log('Total previously checked:\n',previouslyChecked.f.length,'\n\n');
-	//console.log('previouslyChecked.f:\n',previouslyChecked,'\n\n');
-	Object.keys(previouslyChecked.f).forEach(function(v){
-		console.log('"'+v.file+'"\t\t'+previouslyChecked.f[k].length;
+	console.log('Total previously checked:\n',Object.keys(previouslyChecked._).length,'\n');
+	console.log('\n\npreviouslyChecked.f:\n',previouslyChecked,'\n\n');
+	Object.keys(previouslyChecked.f).forEach(function(k){
+		console.log('"'+k+'": '+Object.keys(previouslyChecked.f[k]).length);
 	});
 }
-
