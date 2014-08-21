@@ -263,7 +263,7 @@ function checkAuth(user,pass,cb){
 		//console.log('stdErr', stdErr);
 		// todo: need a stricter check to make sure page loaded
 		if (stdOut.length < 500 || stdErr.indexOf('403 Forbidden') != -1)
-			throw '\nWe\'ve been blocked :(\n';
+			throw '\nWe\'ve been blocked :(\n\n\n'+stdOut+'\n\n\n'+stdErr;
 		if (!err && stdErr.indexOf('302 Found') != -1) {
 			match = {
 				user: user
