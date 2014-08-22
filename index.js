@@ -90,7 +90,7 @@ fs.stat(dictFile,function(err,stat){
 		}).on('fileRead',function(err,data){
 			if (err)
 				console.log('File Read Error', err);
-		}).on('end',function(){
+		}).on('end',function(err,matches){
 			saveAndEnd(err,matches[matches.length-1],true);
 		}).write(files);
 	});
