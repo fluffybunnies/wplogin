@@ -11,14 +11,15 @@ require('http').createServer(function(req,res){
 		r(302,'Found','yay!');
 	else if (winOrLose == -index)
 		r(403,'Forbidden','sorry...');
-	else if (index === 0)
+	else
+		res.end(Array(400).join('sup'));
+	/*else if (index === 0)
 		setTimeout(function(){
 			r(404,'Whered it go?');
-		},maxWait);
+		},maxWait);*/
 	++index;
 	function r(a,b,c){
 		index = 0;
 		res.writeHeader(a,b);
 		res.end(['',c,winOrLose,''].join('\n'));
-	}
-}).listen(3000);
+	}}).listen(3000);

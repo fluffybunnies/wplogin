@@ -24,17 +24,21 @@ module.exports = {
 				console.log('Logger: failed to create '+logPath,err);
 		});
 	}
-	,update: function(content){
+	,update: function(content,cb){
 		var z = this
 			,logPath = z.getPath()
+			,cb = cb || function(){}
 		;
-		if (logPath === null)
-			return console.log('Logger::update() called when log file not yet created');
+		if (logPath === null) {
+			console.log('Logger::update() called when log file not yet created');
+			return cb();
+		}
 		for (var i=1,c=arguments.length;i<c;++i)
 			content += '\n\n'+arguments[i];
 		fs.appendFile(logPath,content+z.entrySep,function(err){
 			if (err)
 				console.log('Unable to write to log file '+logPath,err);
+			cb();
 		});
 	}
 	,addErroredAttempt: function(pass){
