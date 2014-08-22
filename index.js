@@ -47,7 +47,7 @@ console.log(configDisplay.join('\n'),'\n');
 
 stats.timeStart = new Date;
 startStatsInterval(intervalSeconds);
-logger.create(logDir, ut.prettyTime(stats.timeStart), configDisplay.join('\n'));
+logger.create(logDir, process.argv.join(' '), ut.prettyTime(stats.timeStart), configDisplay.join('\n'));
 //handleProcessErrors();
 
 
