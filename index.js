@@ -274,7 +274,7 @@ function checkAuth(entry,cb){
 	ut.spawn(cmd,args,function(err,stdOut,stdErr){
 		// todo: need a stricter check to make sure page loaded
 		if (stdOut.length < 500 || stdErr.indexOf('403 Forbidden') != -1)
-			return saveAndEnd('Blocked', null, false, '\n\n'+stdErr+'\n\n\n'+stdOut+'\n\n\nWe\'ve been blocked :(\n\n');
+			return saveAndEnd('Blocked', null, true, '\n\n'+stdErr+'\n\n\n'+stdOut+'\n\n\nWe\'ve been blocked :(\n\n');
 		if (!err && stdErr.indexOf('302 Found') != -1) {
 			entry.result = true;
 			if (verbose) console.log(matchKey,'  ',entry);
