@@ -156,7 +156,7 @@ function showResults(err,postMsg){
 	var pretty = prettifyStats() + postMsg ? '\n\n'+postMsg : '';
 	console.log(pretty);
 	logger.update(pretty,function(){
-		process.kill();
+		process.exit();
 	});
 }
 
