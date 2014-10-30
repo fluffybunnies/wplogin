@@ -26,7 +26,7 @@ node ./ -d ./dict.example -v -s5 -r -h 'localhost:3000/-300'
 
 ###Test Live Website Using Several Dictionaries in One Folder
 ```
-node ./ -h -d ./~dicts 'http://www.example.com' -u admin -v -s10 -r
+node ./ -h 'http://www.example.com' -u admin -d ./~dicts -v -s5 -r
 ```
 
 ###Options
