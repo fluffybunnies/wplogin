@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // node ./ -d ./~dicts/rockyou.txt -h 'http://www.example.com' -p '/blog/wp-login.php' -v -s30 -t20 -r
 // node ./ -h 'http://www.example.com' -u admin -v -s10 -r
-// node ./ -d ./~dicts  -v -s10 -t1 -r -h 'localhost:3000/5000'
+// node ./ -d ./~dicts -v -s5 -r -h 'localhost:3000/500'
+// node ./ -d ./~dicts -v -s5 -r -h 'localhost:3000/-200'
 
 var fs = require('fs')
 ,split = require('split')
