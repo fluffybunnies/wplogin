@@ -75,12 +75,16 @@ fs.stat(dictFile,function(err,stat){
 	db.getResultsForHostUser(host, user, function(err,data){
 		if (err)
 			return console.log('Error getting saved results',err);
+		//console.log(data);process.exit();
 		previouslyChecked._ = {};
 		data.forEach(function(v){
 			if (!previouslyChecked.f[v.file])
 				previouslyChecked.f[v.file] = {};
-			previouslyChecked._[v.pass] = previouslyChecked.f[v.file][v.pass] = v.pass;
+			if (v.value == 1)
+				return; // dont skip a match
+			previouslyChecked._[v.pass] = previouslyChecked.f[v.file][v.pass] = true;
 		});
+		//console.log(previouslyChecked);process.exit();
 		displayPrevChecked();
 		delete data;
 		through(checkDicts).on('attemptReceived',function(err, match){
