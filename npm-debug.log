@@ -1,0 +1,109 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'publish' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.32
+4 verbose publish [ '.' ]
+5 verbose cache add [ '.', null ]
+6 verbose cache add name=undefined spec="." args=[".",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: '.',
+7 verbose parsed url   path: '.',
+7 verbose parsed url   href: '.' }
+8 silly lockFile 3a52ce78- .
+9 verbose lock . /Users/ahulce/.npm/3a52ce78-.lock
+10 verbose tar pack [ '/Users/ahulce/.npm/wplogin/0.0.10/package.tgz', '.' ]
+11 verbose tarball /Users/ahulce/.npm/wplogin/0.0.10/package.tgz
+12 verbose folder .
+13 info prepublish wplogin@0.0.10
+14 silly lockFile 1f1177db-tar tar://.
+15 verbose lock tar://. /Users/ahulce/.npm/1f1177db-tar.lock
+16 silly lockFile 6142e9d7-e-npm-wplogin-0-0-10-package-tgz tar:///Users/ahulce/.npm/wplogin/0.0.10/package.tgz
+17 verbose lock tar:///Users/ahulce/.npm/wplogin/0.0.10/package.tgz /Users/ahulce/.npm/6142e9d7-e-npm-wplogin-0-0-10-package-tgz.lock
+18 silly lockFile 1f1177db-tar tar://.
+19 silly lockFile 1f1177db-tar tar://.
+20 silly lockFile 6142e9d7-e-npm-wplogin-0-0-10-package-tgz tar:///Users/ahulce/.npm/wplogin/0.0.10/package.tgz
+21 silly lockFile 6142e9d7-e-npm-wplogin-0-0-10-package-tgz tar:///Users/ahulce/.npm/wplogin/0.0.10/package.tgz
+22 silly lockFile b97250cb-hulce-npm-wplogin-0-0-10-package /Users/ahulce/.npm/wplogin/0.0.10/package
+23 verbose lock /Users/ahulce/.npm/wplogin/0.0.10/package /Users/ahulce/.npm/b97250cb-hulce-npm-wplogin-0-0-10-package.lock
+24 silly lockFile b97250cb-hulce-npm-wplogin-0-0-10-package /Users/ahulce/.npm/wplogin/0.0.10/package
+25 silly lockFile b97250cb-hulce-npm-wplogin-0-0-10-package /Users/ahulce/.npm/wplogin/0.0.10/package
+26 silly lockFile 3a52ce78- .
+27 silly lockFile 3a52ce78- .
+28 silly publish { name: 'wplogin',
+28 silly publish   version: '0.0.10',
+28 silly publish   description: 'wplogin =======',
+28 silly publish   keywords: [ 'wordpress' ],
+28 silly publish   homepage: 'https://github.com/fluffybunnies/wplogin',
+28 silly publish   author: { name: 'fluffybunnies' },
+28 silly publish   license: 'MIT',
+28 silly publish   main: 'index.js',
+28 silly publish   repository: { type: 'git', url: 'git@github.com:fluffybunnies/wplogin.git' },
+28 silly publish   dependencies:
+28 silly publish    { split: '0.3.0',
+28 silly publish      sext: '0.0.10',
+28 silly publish      minimist: '0.2.0',
+28 silly publish      through: '2.3.4',
+28 silly publish      level: '0.18.0' },
+28 silly publish   devDependencies: { tape: '2.14.0' },
+28 silly publish   bugs: { url: 'https://github.com/fluffybunnies/wplogin/issues' },
+28 silly publish   scripts: { test: 'node test/test.js' },
+28 silly publish   readme: 'wplogin\n=======\n\n###Install\n```\nnpm install\n```\n\n###Test Eventual Success Locally\n```\n# Will succeed on the 500th request\n# Start server locally...\nnode ./local.js \n# In new terminal...\nnode ./ -d ./dict.example -v -s5 -r -h \'localhost:3000/500\'\n```\n\n###Test Eventual Block Locally\n```\n# Will block incoming requests after 300\n# Start server locally...\nnode ./local.js \n# In new terminal...\nnode ./ -d ./dict.example -v -s5 -r -h \'localhost:3000/-300\'\n```\n\n###Test Live Website Using Several Dictionaries in One Folder\n```\nnode ./ -h \'http://www.example.com\' -u admin -d ./~dicts -v -s5 -r\n```\n\n###Options\n* -h [HOST]\n\t* The website\'s root domain\n\t* Required\n\t* Ex: -h \'http://www.example.com\'\n* -p [PATH]\n\t* Path to wp-login.php\n\t* Default: \'/wp-login.php\'\n\t* Ex: -p \'/blog/wp-login.php\'\n* -u [USERNAME]\n\t* Username to test passwords against\n\t* Default: \'admin\'\n\t* Ex: -u \'dave\'\n* -d [PATH]\n\t* Path to password list(s)\n\t\t* Can be a specific file or a directory\n\t\t* Dictionaries must be new-line delimited\n\t* Default: \'./dict.example\'\n\t* Ex: -d ./~dicts\n* -t [INTEGER]\n\t* Max concurrent curl threads. Lower this to avoid IP blocks. Raise it to increase speed.\n\t\t* May need to up your system\'s process limit. Ex: ulimit -S -n 2048\n\t* Default: 8\n\t* Ex: -t4\n* -r\n\t* Quit on match found\n\t* Default: disabled; will continue testing until blocked or dictionary is spent\n* -v\n\t* Verbose\n\t* Default: disabled\n* -s [INTEGER]\n\t* Interval in seconds to output stats\n\t* Default: null (no output)\n\t* Ex: -s10\n* -f\n\t* Try all passwords even if the result has been saved locally. You can also simply wipe your ./db folder.\n\t* Default: disabled; Results from previous script runs will be skipped.\n\n\n###To Do\n- Adaptive curl timing\n- Stricter confirmation that we haven\'t been blocked and don\'t know it',
+28 silly publish   readmeFilename: 'README.md',
+28 silly publish   gitHead: '37759f083c4be3966275118715f9ab9b0f05ba3f',
+28 silly publish   _id: 'wplogin@0.0.10',
+28 silly publish   _shasum: '50366abfad8cbb4183dd8e45107fc5d7abdf6299',
+28 silly publish   _from: '.' }
+29 verbose request where is /wplogin
+30 verbose request registry https://registry.npmjs.org/
+31 verbose request id a08f3a7f80a43f6f
+32 verbose url raw /wplogin
+33 verbose url resolving [ 'https://registry.npmjs.org/', './wplogin' ]
+34 verbose url resolved https://registry.npmjs.org/wplogin
+35 verbose request where is https://registry.npmjs.org/wplogin
+36 info trying registry request attempt 1 at 02:21:37
+37 http PUT https://registry.npmjs.org/wplogin
+38 http 403 https://registry.npmjs.org/wplogin
+39 verbose headers { date: 'Thu, 30 Oct 2014 09:21:38 GMT',
+39 verbose headers   server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+39 verbose headers   'content-type': 'application/json',
+39 verbose headers   'cache-control': 'max-age=60',
+39 verbose headers   'content-length': '4744',
+39 verbose headers   'accept-ranges': 'bytes',
+39 verbose headers   via: '1.1 varnish',
+39 verbose headers   'x-served-by': 'cache-lax1431-LAX',
+39 verbose headers   'x-cache': 'MISS',
+39 verbose headers   'x-cache-hits': '0',
+39 verbose headers   'x-timer': 'S1414660897.852385,VS0,VE462',
+39 verbose headers   'keep-alive': 'timeout=10, max=50',
+39 verbose headers   connection: 'Keep-Alive' }
+40 error publish Failed PUT 403
+41 error Error: forbidden cannot modify pre-existing version: 0.0.10
+41 error old={"name":"wplogin","version":"0.0.10","description":"wplogin =======","keywords":["wordpress"],"homepage":"https://github.com/fluffybunnies/wplogin","author":{"name":"fluffybunnies"},"license":"MIT","main":"index.js","repository":{"type":"git","url":"git@github.com:fluffybunnies/wplogin.git"},"dependencies":{"split":"0.3.0","sext":"0.0.10","minimist":"0.2.0","through":"2.3.4","level":"0.18.0"},"devDependencies":{"tape":"2.14.0"},"bugs":{"url":"https://github.com/fluffybunnies/wplogin/issues"},"scripts":{"test":"node test/test.js"},"gitHead":"37759f083c4be3966275118715f9ab9b0f05ba3f","_id":"wplogin@0.0.10","_shasum":"45b326f96764bf1b790e3aeeb8316657230d5cd3","_from":".","_npmVersion":"1.4.28","_npmUser":{"name":"fluffybunnies","email":"ohsosexybrit@gmail.com"},"maintainers":[{"name":"fluffybunnies","email":"ohsosexybrit@gmail.com"}],"dist":{"shasum":"45b326f96764bf1b790e3aeeb8316657230d5cd3","tarball":"http://registry.npmjs.org/wplogin/-/wplogin-0.0.10.tgz"}}
+41 error new={"name":"wplogin","version":"0.0.10","description":"wplogin =======","keywords":["wordpress"],"homepage":"https://github.com/fluffybunnies/wplogin","author":{"name":"fluffybunnies"},"license":"MIT","main":"index.js","repository":{"type":"git","url":"git@github.com:fluffybunnies/wplogin.git"},"dependencies":{"split":"0.3.0","sext":"0.0.10","minimist":"0.2.0","through":"2.3.4","level":"0.18.0"},"devDependencies":{"tape":"2.14.0"},"bugs":{"url":"https://github.com/fluffybunnies/wplogin/issues"},"scripts":{"test":"node test/test.js"},"readme":"wplogin\u000a=======\u000a\u000a###Install\u000a```\u000anpm install\u000a```\u000a\u000a###Test Eventual Success Locally\u000a```\u000a# Will succeed on the 500th request\u000a# Start server locally...\u000anode ./local.js \u000a# In new terminal...\u000anode ./ -d ./dict.example -v -s5 -r -h 'localhost:3000/500'\u000a```\u000a\u000a###Test Eventual Block Locally\u000a```\u000a# Will block incoming requests after 300\u000a# Start server locally...\u000anode ./local.js \u000a# In new terminal...\u000anode ./ -d ./dict.example -v -s5 -r -h 'localhost:3000/-300'\u000a```\u000a\u000a###Test Live Website Using Several Dictionaries in One Folder\u000a```\u000anode ./ -h 'http://www.example.com' -u admin -d ./~dicts -v -s5 -r\u000a```\u000a\u000a###Options\u000a* -h [HOST]\u000a\u0009* The website's root domain\u000a\u0009* Required\u000a\u0009* Ex: -h 'http://www.example.com'\u000a* -p [PATH]\u000a\u0009* Path to wp-login.php\u000a\u0009* Default: '/wp-login.php'\u000a\u0009* Ex: -p '/blog/wp-login.php'\u000a* -u [USERNAME]\u000a\u0009* Username to test passwords against\u000a\u0009* Default: 'admin'\u000a\u0009* Ex: -u 'dave'\u000a* -d [PATH]\u000a\u0009* Path to password list(s)\u000a\u0009\u0009* Can be a specific file or a directory\u000a\u0009\u0009* Dictionaries must be new-line delimited\u000a\u0009* Default: './dict.example'\u000a\u0009* Ex: -d ./~dicts\u000a* -t [INTEGER]\u000a\u0009* Max concurrent curl threads. Lower this to avoid IP blocks. Raise it to increase speed.\u000a\u0009\u0009* May need to up your system's process limit. Ex: ulimit -S -n 2048\u000a\u0009* Default: 8\u000a\u0009* Ex: -t4\u000a* -r\u000a\u0009* Quit on match found\u000a\u0009* Default: disabled; will continue testing until blocked or dictionary is spent\u000a* -v\u000a\u0009* Verbose\u000a\u0009* Default: disabled\u000a* -s [INTEGER]\u000a\u0009* Interval in seconds to output stats\u000a\u0009* Default: null (no output)\u000a\u0009* Ex: -s10\u000a* -f\u000a\u0009* Try all passwords even if the result has been saved locally. You can also simply wipe your ./db folder.\u000a\u0009* Default: disabled; Results from previous script runs will be skipped.\u000a\u000a\u000a###To Do\u000a- Adaptive curl timing\u000a- Stricter confirmation that we haven't been blocked and don't know it","readmeFilename":"README.md","gitHead":"37759f083c4be3966275118715f9ab9b0f05ba3f","_id":"wplogin@0.0.10","_shasum":"50366abfad8cbb4183dd8e45107fc5d7abdf6299","_from":".","_npmVersion":"1.4.28","_npmUser":{"name":"fluffybunnies","email":"ohsosexybrit@gmail.com"},"maintainers":[{"name":"fluffybunnies","email":"ohsosexybrit@gmail.com"}],"dist":{"shasum":"50366abfad8cbb4183dd8e45107fc5d7abdf6299","tarball":"http://registry.npmjs.org/wplogin/-/wplogin-0.0.10.tgz"}}: wplogin
+41 error     at RegClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:308:14)
+41 error     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:246:65)
+41 error     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:236:22)
+41 error     at Request.emit (events.js:98:17)
+41 error     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1142:14)
+41 error     at Request.emit (events.js:117:20)
+41 error     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1096:12)
+41 error     at IncomingMessage.emit (events.js:117:20)
+41 error     at _stream_readable.js:943:16
+41 error     at process._tickCallback (node.js:419:13)
+42 error If you need help, you may report this *entire* log,
+42 error including the npm and node versions, at:
+42 error     <http://github.com/npm/npm/issues>
+43 error System Darwin 13.1.0
+44 error command "node" "/usr/local/bin/npm" "publish"
+45 error cwd /Users/ahulce/Dropbox/hacks/wplogin
+46 error node -v v0.10.32
+47 error npm -v 1.4.28
+48 verbose exit [ 1, true ]
