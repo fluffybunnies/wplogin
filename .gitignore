@@ -2,7 +2,7 @@
 *~
 .DS_Store
 node_modules
-npm-debug.log
+npm-debug.logd
 config.local.json
 logs/*
 db/*
