@@ -3,9 +3,13 @@ var test = require('tape')
 ;
 
 test('levs',function(t){
-	level.saveResult('www.google.com','ralph','password',1,function(err,data){
-		level.saveResult('www.google.com','ralph','password2',0,function(err,data){
-			level.getResultsForHostUser('www.google.com','ralph',function(err,data){
+	var host = 'www.myblog'+ +new Date +'.com'
+	,dict = __dirname+'/../dict.example'
+	;
+	console.log(['Host: '+host, 'Dictionary: '+dict, '\n'].join('\n'));
+	level.saveResult(host,'ralph','password',dict,1,function(err,data){
+		level.saveResult(host,'ralph','password2',dict,0,function(err,data){
+			level.getResultsForHostUser(host,'ralph',function(err,data){
 				console.log(err,data);
 				t.equal(data.length, 2, 'level worky')
 				t.end();
