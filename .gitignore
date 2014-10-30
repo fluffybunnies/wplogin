@@ -4,5 +4,6 @@
 node_modules
 config.local.json
 dict
-logs/*.log
+logs/*
 db/*
+!.g
