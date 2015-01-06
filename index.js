@@ -155,7 +155,7 @@ function showResults(err,postMsg){
 	;
 	if (err) {
 		if (err.message && err.name && err.stack)
-				throw err;
+			throw err;
 		console.log('ERR',err);
 	}
 	var pretty = prettifyStats() + (postMsg ? '\n\n'+postMsg : '');
@@ -209,8 +209,8 @@ function checkDicts(files,cb){
 				return z.emit('attemptReceived',false);
 			}
 			checkedThisProcess[pass] = true;
-			++stats.attempts;
-			++attempts;
+			//++stats.attempts;
+			//++attempts;
 			queueCmd({user:user,pass:pass,file:file});
 		}).on('error',fileFinished).on('close',fileFinished);
 		function fileFinished(err){
@@ -232,6 +232,8 @@ function checkDicts(files,cb){
 		}
 		function runCmd(cmd){
 			++activeCmds;
+			++stats.attempts;
+			++attempts;
 			checkAuth(cmd, function(err,match){
 				if (!err) {
 					++stats.attemptsCompleted;
