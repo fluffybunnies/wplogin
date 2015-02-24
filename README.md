@@ -69,5 +69,6 @@ node ./ -h 'http://www.example.com' -u admin -d ./~dicts -v -s5 -r
 
 
 ###To Do
+- Use hyperquest instead of curl. I've benchmarked vastly improved speed and resource allocation efficiency.
 - Adaptive curl timing
 - Stricter confirmation that we haven't been blocked and don't know it
