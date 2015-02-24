@@ -1,10 +1,12 @@
-wplogin
-=======
+#wplogin
+Log in to Wordpress
+
 
 ###Install
 ```
 npm install
 ```
+
 
 ###Test Eventual Success Locally
 ```
@@ -15,6 +17,7 @@ node ./local.js
 node ./ -d ./dict.example -v -s5 -r -h 'localhost:3000/500'
 ```
 
+
 ###Test Eventual Block Locally
 ```
 # Will block incoming requests after 300
@@ -24,10 +27,12 @@ node ./local.js
 node ./ -d ./dict.example -v -s5 -r -h 'localhost:3000/-300'
 ```
 
+
 ###Test Live Website Using Several Dictionaries in One Folder
 ```
 node ./ -h 'http://www.example.com' -u admin -d ./~dicts -v -s5 -r
 ```
+
 
 ###Options
 * -h [HOST]
