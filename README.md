@@ -1,14 +1,14 @@
-#wplogin
+# wplogin
 Log in to Wordpress
 
 
-###Install
+### Install
 ```
 npm install
 ```
 
 
-###Test Eventual Success Locally
+### Test Eventual Success Locally
 ```
 # Will succeed on the 500th request
 # Start server locally...
@@ -18,7 +18,7 @@ node ./ -d ./dict.example -v -s5 -r -h 'localhost:3000/500'
 ```
 
 
-###Test Eventual Block Locally
+### Test Eventual Block Locally
 ```
 # Will block incoming requests after 300
 # Start server locally...
@@ -28,13 +28,13 @@ node ./ -d ./dict.example -v -s5 -r -h 'localhost:3000/-300'
 ```
 
 
-###Test Live Website Using Several Dictionaries in One Folder
+### Test Live Website Using Several Dictionaries in One Folder
 ```
 node ./ -h 'http://www.example.com' -u admin -d ./~dicts -v -s5 -r
 ```
 
 
-###Options
+### Options
 * -h [HOST]
 	* The website's root domain
 	* Required
@@ -73,7 +73,7 @@ node ./ -h 'http://www.example.com' -u admin -d ./~dicts -v -s5 -r
 	* Default: disabled; Results from previous script runs will be skipped.
 
 
-###To Do
+### To Do
 - Use hyperquest instead of curl. I've benchmarked vastly improved speed and resource allocation efficiency.
 - Adaptive curl timing
 - Stricter confirmation that we haven't been blocked and don't know it
