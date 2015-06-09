@@ -276,7 +276,7 @@ function checkAuth(entry,cb){
 	,'-H',"Cache-Control: max-age=0"
 	,'-H',"Referer: "+host+loginPath
 	,'-H',"Connection: keep-alive"
-	,'--data',"log="+entry.user+"&pwd="+encodeURIComponent(entry.pass)+"&wp-submit=Log+In&redirect_to="+encodeURIComponent(host+loginPath.replace(/(wp-login\.php)|(wp-login\/?)/,'wp-admin/'))+"&testcookie=1"
+	,'--data',"log="+encodeURIComponent(entry.user)+"&pwd="+encodeURIComponent(entry.pass)+"&wp-submit=Log+In&redirect_to="+encodeURIComponent(host+loginPath.replace(/(wp-login\.php)|(wp-login\/?)/,'wp-admin/'))+"&testcookie=1"
 	,'--compressed'
 	,'--max-time','20'
 	];
