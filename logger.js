@@ -33,8 +33,10 @@ module.exports = {
 			console.log('Logger::update() called when log file not yet created');
 			return cb();
 		}
-		for (var i=1,c=arguments.length;i<c;++i)
-			content += '\n\n'+arguments[i];
+		for (var i=1,c=arguments.length;i<c;++i) {
+			if (typeof arguments[i] == 'string' || typeof arguments[i] == 'number')
+				content += '\n\n'+arguments[i];
+		}
 		fs.appendFile(logPath,content+z.entrySep,function(err){
 			if (err)
 				console.log('Unable to write to log file '+logPath,err);
