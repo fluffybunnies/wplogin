@@ -24,7 +24,7 @@ var fs = require('fs')
 ,quitOnFind = !!argv.r
 ,logDir = config.logDir || __dirname+'/logs/'
 ,maxCmdThreads = argv.t ? +argv.t : config.maxCmdThreads
-,dictFile = path.normalize(argv.d || __dirname+'/dict.example')
+,dictFile = path.resolve(argv.d || __dirname+'/dict.example')
 ,dictDir
 ,previouslyChecked = {
 	_: {}
@@ -195,7 +195,7 @@ function checkDicts(files,cb){
 	,matches = []
 	;
 	files.forEach(function(file,fileIndex){
-		file = path.normalize(file);
+		file = path.resolve(file);
 		streams[fileIndex] = fs.createReadStream(file).pipe(split()).on('data',function(pass){
 			if (pass == '')
 				return z.emit('attemptReceived',false);
@@ -280,7 +280,7 @@ function checkAuth(entry,cb){
 	,'--compressed'
 	,'--max-time','20'
 	];
-	//console.log('curl "'+args.join('" "')+'"');
+	//console.log('\ncurl "'+args.join('" "')+'"\n');
 	//console.log('----SENDING');
 	ut.spawn(cmd,args,function(err,stdOut,stdErr){
 		//console.log('stdErr:\n'+stdErr+'\nstdOut:\n'+stdOut+'\n\n\n\n');
