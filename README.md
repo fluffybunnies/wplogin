@@ -4,7 +4,7 @@ Log in to Wordpress
 
 ### Install
 ```
-npm install
+npm install wplogin
 ```
 
 
